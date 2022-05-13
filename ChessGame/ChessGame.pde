@@ -1,6 +1,7 @@
 import java.util.Arrays;
 
 ArrayList<Piece> board_pieces = new ArrayList<Piece>();
+Piece picked_up = null;
 HashMap<String,PImage> piece_images = new HashMap<String,PImage>();
 
 int BUFFER_LENGTH = 100;
@@ -12,11 +13,6 @@ float squareLength;
 
 void setup() {
   fullScreen();
-  background(94, 63, 6);
-
-  fill(255);
-  rectMode(CENTER);
-  rect(width/2, height/2, width-50, height-50);
   
   chessboardLength = height-BUFFER_LENGTH*2;
   squareLength = chessboardLength / 8;
@@ -26,13 +22,35 @@ void setup() {
 }
 
 void draw() {
+  background(94, 63, 6);
+
+  fill(255);
+  rectMode(CENTER);
+  rect(width/2, height/2, width-50, height-50);  
+  
   drawChessboard();
   drawBoardPieces();
+  
+  if (picked_up != null) {
+     image(piece_images.get("pWhite"), mouseX, mouseY, squareLength, squareLength);
+  }
 }
 
-void mouseClicked() {
-  String coordinate_position = "(" + mouseX + "," + mouseY + ")";
-  System.out.println(coordinate_position);
+void mousePressed() {
+  int x_pos = floor((mouseX - BUFFER_LENGTH)/squareLength);
+  int y_pos = floor(((height - mouseY) - BUFFER_LENGTH)/squareLength);
+  
+  if (x_pos >= 0 && y_pos >= 0 && x_pos < 8 && y_pos < 8) {
+    for (int i = 0; i < board_pieces.size(); i++) {
+      Piece curr_piece = board_pieces.get(i);
+      if (curr_piece.chess_x == x_pos && curr_piece.chess_y == y_pos) {
+         picked_up = curr_piece;
+         board_pieces.remove(i);
+         break;
+      }
+    }
+  }
+  
 }
 
 void drawBoardPieces() {
