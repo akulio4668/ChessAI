@@ -22,22 +22,89 @@ void setup() {
   squareLength = chessboardLength / 8;
   
   loadGamePieces();
+  initGame();
 }
 
 void draw() {
   drawChessboard();
-  
-  imageMode(CENTER);
-  image(piece_images.get("pWhite"), BUFFER_LENGTH + squareLength/2, BUFFER_LENGTH + squareLength/2, squareLength, squareLength);
+  drawBoardPieces();
 }
 
-void mousePressed() {
+void mouseClicked() {
   String coordinate_position = "(" + mouseX + "," + mouseY + ")";
   System.out.println(coordinate_position);
 }
 
+void drawBoardPieces() {
+  imageMode(CENTER);
+  for (int i = 0; i < board_pieces.size(); i++) {
+    PImage place_image = null;
+    
+    Piece curr_piece = board_pieces.get(i);
+    switch (curr_piece.piece_type) {
+      case PAWN:
+        if (curr_piece.piece_color == Color.WHITE) {
+          place_image = piece_images.get("pWhite");
+        } else {
+          place_image = piece_images.get("pBlack"); 
+        }
+        break;
+      case BISHOP:
+        if (curr_piece.piece_color == Color.WHITE) {
+          place_image = piece_images.get("bWhite");
+        } else {
+          place_image = piece_images.get("bBlack");
+        }
+        break;
+      case KNIGHT:
+        if (curr_piece.piece_color == Color.WHITE) {
+          place_image = piece_images.get("nWhite");
+        } else {
+          place_image = piece_images.get("nBlack");
+        }
+        break;
+      case ROOK:
+        if (curr_piece.piece_color == Color.WHITE) {
+          place_image = piece_images.get("rWhite");
+        } else {
+          place_image = piece_images.get("rBlack");
+        }
+        break;
+      case QUEEN:
+        if (curr_piece.piece_color == Color.WHITE) {
+          place_image = piece_images.get("qWhite");
+        } else {
+          place_image = piece_images.get("qBlack");
+        }
+        break;
+      case KING:
+        if (curr_piece.piece_color == Color.WHITE) {
+          place_image = piece_images.get("kWhite");
+        } else {
+          place_image = piece_images.get("kBlack");
+        }
+        break;
+      default:
+        break;
+    }
+    
+    image(place_image, BUFFER_LENGTH+squareLength/2+squareLength*curr_piece.chess_x, height-(BUFFER_LENGTH+squareLength/2+squareLength*curr_piece.chess_y), squareLength, squareLength);
+  }
+}
+
 void loadGamePieces() {
    piece_images.put("pWhite", loadImage("chess_pieces/pawn_white.png"));
+   piece_images.put("pBlack", loadImage("chess_pieces/pawn_black.png"));
+   piece_images.put("bWhite", loadImage("chess_pieces/bishop_white.png"));
+   piece_images.put("bBlack", loadImage("chess_pieces/bishop_black.png"));
+   piece_images.put("nWhite", loadImage("chess_pieces/knight_white.png"));
+   piece_images.put("nBlack", loadImage("chess_pieces/knight_black.png"));
+   piece_images.put("rWhite", loadImage("chess_pieces/rook_white.png"));
+   piece_images.put("rBlack", loadImage("chess_pieces/rook_black.png"));
+   piece_images.put("qWhite", loadImage("chess_pieces/queen_white.png"));
+   piece_images.put("qBlack", loadImage("chess_pieces/queen_black.png"));
+   piece_images.put("kWhite", loadImage("chess_pieces/king_white.png"));
+   piece_images.put("kBlack", loadImage("chess_pieces/king_black.png"));
 }
 
 void drawChessboard() {
@@ -83,8 +150,16 @@ void drawChessboard() {
 void initGame() {
   // pawns 
   for (int i = 0; i < 8; i++) {
-    board_pieces.add(new Piece(i,1,Type.PAWN));
-    board_pieces.add(new Piece(i,6,Type.PAWN));
+    board_pieces.add(new Piece(i,1,Type.PAWN,Color.WHITE));
+    board_pieces.add(new Piece(i,6,Type.PAWN,Color.BLACK));
+  }
+  
+  Type back_row_init[] = { Type.ROOK, Type.KNIGHT, Type.BISHOP, Type.QUEEN, Type.KING, Type.BISHOP, Type.KNIGHT, Type.ROOK };
+  
+  // backrows
+  for (int i = 0; i < 8; i++) {
+    board_pieces.add(new Piece(i,0,back_row_init[i],Color.WHITE));
+    board_pieces.add(new Piece(i,7,back_row_init[i],Color.BLACK));
   }
   
 }
