@@ -13,15 +13,15 @@ enum Color {
 }
 
 class Piece {
-  int chess_x;
-  int chess_y;
-  Type piece_type;
-  Color piece_color;
+  int chessX;
+  int chessY;
+  Type pieceType;
+  Color pieceColor;
   
-  Piece(int x, int y, Type type, Color p_color) {
-    chess_x = x;
-    chess_y = y;
-    piece_type = type;
-    piece_color = p_color;
+  Piece(int x, int y, Type type, Color pColor) {
+    chessX = x;
+    chessY = y;
+    pieceType = type;
+    pieceColor = pColor;
   }
 }
