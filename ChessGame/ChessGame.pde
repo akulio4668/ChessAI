@@ -57,7 +57,12 @@ void mousePressed() {
         }
       }
     } else {
-      boardPieces.add(new Piece(xPos, yPos, pickedUp.pieceType, pickedUp.pieceColor));
+      if (boardTracker.movePiece(pickedUp.chessX, pickedUp.chessY, xPos, yPos)) {
+        boardPieces.add(new Piece(xPos, yPos, pickedUp.pieceType, pickedUp.pieceColor));        
+        boardTracker.printBoard();
+      } else {
+        boardPieces.add(new Piece(pickedUp.chessX, pickedUp.chessY, pickedUp.pieceType, pickedUp.pieceColor));
+      }
       pickedUp = null;
     }
   }
