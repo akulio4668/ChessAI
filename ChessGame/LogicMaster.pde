@@ -90,7 +90,7 @@ class LogicMaster {
       return false; 
     }
     
-    Piece destSpace = boardRepresentation.get(y).get(x);
+    Piece destSpace = getPiece(x,y);
     
     if (destSpace != null) {
       if (pickedUp.pieceColor == destSpace.pieceColor) {
@@ -128,6 +128,10 @@ class LogicMaster {
               if ((y -  pickedUp.chessY) != 2 && (y - pickedUp.chessY) != 1) {
                 return false;
               }
+              
+              if ((y - pickedUp.chessY) == 2 && getPiece(x,pickedUp.chessY + 1) != null) {
+                return false; 
+              }
             } else {
               if ((y - pickedUp.chessY) != 1) {
                 return false; 
@@ -137,6 +141,10 @@ class LogicMaster {
             if (pickedUp.chessY == 6) {
               if ((pickedUp.chessY - y) != 2 && (pickedUp.chessY - y) != 1) {
                 return false;
+              }
+              
+              if ((pickedUp.chessY - y) == 2 && getPiece(x,pickedUp.chessY - 1) != null) {
+                return false; 
               }
             } else {
               if ((pickedUp.chessY - y) != 1) {
