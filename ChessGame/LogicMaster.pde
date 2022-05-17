@@ -1,16 +1,48 @@
 class LogicMaster {
   
-  ArrayList<ArrayList<String>> boardRepresentation = new ArrayList<ArrayList<String>>();
+  ArrayList<ArrayList<Piece>> boardRepresentation = new ArrayList<ArrayList<Piece>>();
+  Piece pickedUp = null;
+  boolean whiteTurn = true;
   
   LogicMaster() {
     initBoard();
   }
   
   void initBoard() {
+    Type backRowInit[] = { Type.ROOK, Type.KNIGHT, Type.BISHOP, Type.QUEEN, Type.KING, Type.BISHOP, Type.KNIGHT, Type.ROOK };
+    
     for (int i = 0; i < 8; i++) {
-      ArrayList<String> currRow = new ArrayList<String>();
-      for (int j = 0; j < 8; j++) {
-        currRow.add(".");
+      ArrayList<Piece> currRow = new ArrayList<Piece>();
+      
+      switch (i) {
+        case 0:
+          for (int j = 0; j < 8; j++) {
+            currRow.add(new Piece(j,i,backRowInit[j],Color.WHITE));
+          }
+          break;
+         
+        case 1:
+          for (int j = 0; j < 8; j++) {
+            currRow.add(new Piece(j,i,Type.PAWN,Color.WHITE));
+          }
+          break;
+        
+        case 6:
+          for (int j = 0; j < 8; j++) {
+             currRow.add(new Piece(j,i,Type.PAWN,Color.BLACK));
+          }
+          break;
+          
+        case 7:
+          for (int j = 0; j < 8; j++) {
+            currRow.add(new Piece(j,i,backRowInit[j],Color.BLACK)); 
+          }
+          break;
+        
+        default:
+          for (int j = 0; j < 8; j++) {
+            currRow.add(null);
+          }   
       }
       
       boardRepresentation.add(currRow);
@@ -27,57 +59,98 @@ class LogicMaster {
    System.out.println("\n\n\n");
   }
   
-  void addPiece(int chessX, int chessY, Type pieceType, Color pieceColor) {
-    String posString = "";
-    
-    switch (pieceColor) {
-      case BLACK:
-        posString += "b";
-        break;
-      case WHITE:
-        posString += "w";
-        break;
-      default:
-        break;
-    }
-    
-    switch (pieceType) {
-      case PAWN:
-        posString += "P";
-        break;
-      case KNIGHT:
-        posString += "N";
-        break;
-      case BISHOP:
-        posString += "B";
-        break;
-      case ROOK:
-        posString += "R";
-        break;
-      case QUEEN:
-        posString += "Q";
-        break;
-      case KING:
-        posString += "K";
-        break;
-      default:
-        break;
-    }
-    
-    boardRepresentation.get(chessY).set(chessX, posString);
+  Piece getPiece(int x, int y) {
+    return boardRepresentation.get(y).get(x);
   }
   
-  boolean movePiece(int initX, int initY, int finalX, int finalY) {
+  Piece piecePickedUp() {
+    return pickedUp; 
+  }
+  
+  void pickDropHandler(int x, int y) {
+    if (pickedUp == null) {
+      if (boardRepresentation.get(y).get(x) != null) {
+        pickedUp = boardRepresentation.get(y).get(x);
+        boardRepresentation.get(y).set(x,null);
+      }
+    } else {
+       boolean canDrop = dropPieceChecker(x,y); 
+       if (canDrop) {
+         boardRepresentation.get(y).set(x, new Piece(x,y,pickedUp.pieceType,pickedUp.pieceColor));
+       } else {
+         boardRepresentation.get(pickedUp.chessY).set(pickedUp.chessX, pickedUp);
+       }
+       pickedUp = null;
+    }
+  }
+  
+  boolean dropPieceChecker(int x, int y) {
     
-    if (boardRepresentation.get(initY).get(initX).substring(0,1).equals(boardRepresentation.get(finalY).get(finalX).substring(0,1))) {
-      return false;
+    if ((whiteTurn && pickedUp.pieceColor == Color.BLACK) || (!whiteTurn && pickedUp.pieceColor == Color.WHITE)) {
+      return false; 
     }
     
-    String pieceType = boardRepresentation.get(initY).get(initX).substring(1,2);
+    Piece destSpace = boardRepresentation.get(y).get(x);
     
-    boardRepresentation.get(finalY).set(finalX, boardRepresentation.get(initY).get(initX));
-    boardRepresentation.get(initY).set(initX, ".");
+    if (destSpace != null) {
+      if (pickedUp.pieceColor == destSpace.pieceColor) {
+        return false;
+      } else {
+        switch (pickedUp.pieceType) {
+          case PAWN:
+            if (pickedUp.chessX != (x - 1) && pickedUp.chessX != (x + 1)) {
+              return false;
+            }
+       
+            if (pickedUp.pieceColor == Color.WHITE) {              
+              if (pickedUp.chessY != (y - 1)) {
+                return false; 
+              }
+            } else {
+              if (pickedUp.chessY != (y + 1)) {
+                return false; 
+              }
+            }
+            break;
+          default:
+            break;
+        }
+      }
+    } else {
+      switch (pickedUp.pieceType) {
+        case PAWN:
+          if (pickedUp.chessX != x) {
+            return false; 
+          }
+          
+          if (pickedUp.pieceColor == Color.WHITE) {
+            if (pickedUp.chessY == 1) {
+              if ((y -  pickedUp.chessY) != 2 && (y - pickedUp.chessY) != 1) {
+                return false;
+              }
+            } else {
+              if ((y - pickedUp.chessY) != 1) {
+                return false; 
+              }
+            }
+          } else {      
+            if (pickedUp.chessY == 6) {
+              if ((pickedUp.chessY - y) != 2 && (pickedUp.chessY - y) != 1) {
+                return false;
+              }
+            } else {
+              if ((pickedUp.chessY - y) != 1) {
+                return false; 
+              }
+            }
+          }
+          break;
+        default:
+          break;
+      }
+    }
     
+    whiteTurn = !whiteTurn;
     return true;
   }
 }

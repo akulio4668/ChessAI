@@ -1,9 +1,6 @@
 import java.util.Arrays;
 
-ArrayList<Piece> boardPieces = new ArrayList<Piece>();
 LogicMaster boardTracker;
-
-Piece pickedUp = null;
 HashMap<String,PImage> pieceImages = new HashMap<String,PImage>();
 
 int BUFFER_LENGTH = 100;
@@ -22,9 +19,7 @@ void setup() {
   boardTracker = new LogicMaster();
   
   loadGamePieces();
-  initGame();
-  
-  boardTracker.printBoard();
+  boardTracker.initBoard();
 }
 
 void draw() {
@@ -37,6 +32,8 @@ void draw() {
   drawChessboard();
   drawBoardPieces();
   
+  Piece pickedUp = boardTracker.piecePickedUp();
+  
   if (pickedUp != null) {
     image(choosePieceImage(pickedUp.pieceType,pickedUp.pieceColor), mouseX, mouseY, squareLength, squareLength);
   }
@@ -47,37 +44,20 @@ void mousePressed() {
   int yPos = floor(((height - mouseY) - BUFFER_LENGTH)/squareLength);
   
   if (xPos >= 0 && yPos >= 0 && xPos < 8 && yPos < 8) {
-    if (pickedUp == null) {
-      for (int i = 0; i < boardPieces.size(); i++) {
-        Piece currPiece = boardPieces.get(i);
-        if (currPiece.chessX == xPos && currPiece.chessY == yPos) {
-           pickedUp = currPiece;
-           boardPieces.remove(i);
-           break;
-        }
-      }
-    } else {
-      if (boardTracker.movePiece(pickedUp.chessX, pickedUp.chessY, xPos, yPos)) {
-        boardPieces.add(new Piece(xPos, yPos, pickedUp.pieceType, pickedUp.pieceColor));        
-        boardTracker.printBoard();
-      } else {
-        boardPieces.add(new Piece(pickedUp.chessX, pickedUp.chessY, pickedUp.pieceType, pickedUp.pieceColor));
-      }
-      pickedUp = null;
-    }
+    boardTracker.pickDropHandler(xPos, yPos);
   }
-  
 }
 
 void drawBoardPieces() {
   imageMode(CENTER);
-  for (int i = 0; i < boardPieces.size(); i++) {
-    PImage placeImage = null;
-    
-    Piece currPiece = boardPieces.get(i);
-    placeImage = choosePieceImage(currPiece.pieceType, currPiece.pieceColor);
-    
-    image(placeImage, BUFFER_LENGTH+squareLength/2+squareLength*currPiece.chessX, height-(BUFFER_LENGTH+squareLength/2+squareLength*currPiece.chessY), squareLength, squareLength);
+  for (int x = 0; x < 8; x++) {
+    for (int y = 0; y < 8; y++) {
+      Piece currPiece = boardTracker.getPiece(x,y);
+      if (currPiece != null) {
+        PImage placeImage = choosePieceImage(currPiece.pieceType, currPiece.pieceColor);
+        image(placeImage, BUFFER_LENGTH+squareLength/2+squareLength*x, height-(BUFFER_LENGTH+squareLength/2+squareLength*y), squareLength, squareLength);
+      }
+    }
   }
 }
 
@@ -177,27 +157,4 @@ void drawChessboard() {
     fill(150, 101, 9);
     text(ROW_LABELS[i], BUFFER_LENGTH+squareLength/2+squareLength*i, height-BUFFER_LENGTH+15);
   }
-}
-
-void initGame() {
-  // pawns 
-  for (int i = 0; i < 8; i++) {
-    boardPieces.add(new Piece(i,1,Type.PAWN,Color.WHITE));
-    boardTracker.addPiece(i,1,Type.PAWN,Color.WHITE);
-    
-    boardPieces.add(new Piece(i,6,Type.PAWN,Color.BLACK));
-    boardTracker.addPiece(i,6,Type.PAWN,Color.BLACK);
-  }
-  
-  Type backRowInit[] = { Type.ROOK, Type.KNIGHT, Type.BISHOP, Type.QUEEN, Type.KING, Type.BISHOP, Type.KNIGHT, Type.ROOK };
-  
-  // backrows
-  for (int i = 0; i < 8; i++) {
-    boardPieces.add(new Piece(i,0,backRowInit[i],Color.WHITE));
-    boardTracker.addPiece(i,0,backRowInit[i],Color.WHITE);
-    
-    boardPieces.add(new Piece(i,7,backRowInit[i],Color.BLACK));
-    boardTracker.addPiece(i,7,backRowInit[i],Color.BLACK);
-  }
-  
 }
